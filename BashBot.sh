@@ -18,10 +18,12 @@ echo
 if [ "$EUID" -eq 0 ]; then
 	apt-get update
 	apt-get upgrade
+	echo
 
 	#Installs Synaptic
+	echo "Installing Synaptic"
 	apt-get install synaptic
-
+	echo
 	#Enables and configures firewall
 	echo "Enabling and configuring firewall"
 	ufw enable
@@ -75,6 +77,19 @@ if [ "$EUID" -eq 0 ]; then
 		echo -e "[SeatDefaults]\nuser-session=ubuntu\ngreeter-session=unity-greeter\nallow-guest=false" > $guestpath$guestfile
 		echo "$guestfile created and guest account disabled"
 		echo
+	fi
+
+	#Secures SSH
+	sshpath="/etc/ssh/"
+	sshconfig="sshd_config"
+	echo "Securing SSH"
+	if [ -n "$( find $sshpath -name $sshconfig )" ]; then
+		echo  "File $sshconfig exists"
+		sed -i 's/PermitRootLogin yes/PermitRootLogin no/g' $sshpath$sshconfig
+		echo "SSH root login disabled"
+	else
+		echo "File $sshconfig does not exist"
+		echo 
 	fi
 else
 	echo "Please run as root"
