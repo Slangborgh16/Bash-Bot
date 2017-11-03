@@ -175,6 +175,19 @@ if [ "$EUID" -eq 0 ]; then
 		echo -e "${RED}File $sshconfig does not exist"
 		echo
 	fi
+
+	#Secures Cron
+	echo -e "${BLUE}Securing cron"
+	echo -e "${BLUE}Resetting crontab"
+	crontab -r
+	echo -e "${BLUE}Only allowing root access to cron"
+	cd /etc/
+	/bin/rm -f cron.deny at.deny
+	echo root >cron.allow
+	echo root >at.allow
+	/bin/chown root:root cron.allow at.allow
+	/bin/chmod 644 cron.allow at.allow
+	echo -e "${GREEN}Cron secured"
 else
 	echo -e "${RED}Please run as root"
 	read -n 1 -s
