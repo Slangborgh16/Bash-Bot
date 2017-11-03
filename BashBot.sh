@@ -61,7 +61,7 @@ if [ "$EUID" -eq 0 ]; then
 		echo -e "${BLUE}Checking to see if guest account is disabled"
 		if [ -z $( grep allow-guest=false $guestpath$guestfile ) ]; then
 			if [ -z $( grep allow-guest=true $guestpath$guestfile ) ]; then
-				echo -e "${RED}Guest account status not specified"
+				echo -e "${RED}Guest account enabled"
 				echo -e "${BLUE}Disabling guest account"
 				echo "allow-guest=false" >> $guestpath$guestfile
 				echo -e "${GREEN}Guest account disabled"
@@ -104,9 +104,58 @@ if [ "$EUID" -eq 0 ]; then
 				echo -e "${RED}SSH root login preferences not specified"
 			fi
 		fi
+		echo
+		echo -e "${BLUE}Checking if Protocol 2 is enabled"
+		if [ -n "$( grep 'Protocol 2' $sshpath$sshconfig )" ]; then
+			echo -e "${GREEN}Protocol 2 enabled"
+		else
+			echo -e "${RED}Protocol 1 enabled"
+			echo -e "${BLUE}Enabling Protocol 2"
+			sed -i 's/Protocol 1/Protocol 2/g' $sshpath$sshconfig
+			echo -e "${GREEN}Protocol 2 enabled"
+		fi
+		echo
+		echo -e "${BLUE}Checking if PAM is enabled"
+		if [ -n "$( grep 'UsePAM yes' $sshpath$sshconfig )" ]; then
+			echo -e "${GREEN}PAM enabled"
+		else
+			if [ -n "$( grep 'UsePAM no' $sshpath$sshconfig )" ]; then
+				echo -e "${RED}PAM disabled"
+				echo -e "${BLUE}Enabling PAM"
+				sed -i 's/UsePAM no/UsePAM yes/g' $sshpath$sshconfig
+				echo -e "${GREEN}PAM enabled"
+			else
+				echo -e "${RED}PAM settings not specified"
+				echo -e "${BLUE}Enabling PAM"
+				echo "UsePAM yes" >> $sshpath$sshconfig
+				echo -e "${GREEN}PAM enabled"
+			fi
+		fi
+		echo
+		echo -e "${ORANGE}Please input allowed SSH users (Enter 'none' if no SSH users are desired)"
+		read users
+		if [ "$users" = "none" ]; then
+			if [ -n "$( grep 'AllowUsers *' $sshpath$sshconfig )" ]; then
+				echo -e "${BLUE}Removing all SSH users"
+				sed -i '/AllowUsers/d' $sshpath$sshconfig
+				echo -e "${GREEN}All SSH users removed"
+			else
+				echo -e "${GREEN}No Authorized SSH users"
+			fi
+		else
+			if [ -n "$( grep 'AllowUsers *' $sshpath$sshconfig )" ]; then
+				echo -e "${BLUE}Replacing existing SSH users"
+				sed -i "/AllowUsers/c\AllowUsers $users" $sshpath$sshconfig
+				echo -e "${GREEN}SSH users replaced"
+			else
+				echo -e "${BLUE}Adding SSH users"
+				echo "AllowUsers $users" >> $sshpath$sshconfig
+				echo -e "${GREEN}SSH users added"
+			fi
+		fi
 	else
 		echo -e "${RED}File $sshconfig does not exist"
-		echo 
+		echo
 	fi
 else
 	echo -e "${RED}Please run as root"
