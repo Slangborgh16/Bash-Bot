@@ -93,23 +93,21 @@ if [ "$EUID" -eq 0 ]; then
 		echo -e "${GREEN}File $sshconfig exists"
 		echo -e "${BLUE}Checking if SSH root login is disabled"
 		if [ -n "$( grep 'PermitRootLogin yes' $sshpath$sshconfig )" ]; then
-			echo -e "${RED}SSH root login enabled"
+			echo -e "${RED}SSH root login is enabled"
 			echo -e "${BLUE}Disabling SSH root login"
 			sed -i 's/PermitRootLogin yes/PermitRootLogin no/g' $sshpath$sshconfig
 			echo -e "${GREEN}SSH root login disabled"
 		else
 			if [ -n "$( grep 'PermitRootLogin no' $sshpath$sshconfig )" ]; then
-				echo -e "${GREEN}SSH root login disabled"
-			else
-				echo -e "${RED}SSH root login preferences not specified"
+				echo -e "${GREEN}SSH root login is disabled"
 			fi
 		fi
 		echo
 		echo -e "${BLUE}Checking if Protocol 2 is enabled"
 		if [ -n "$( grep 'Protocol 2' $sshpath$sshconfig )" ]; then
-			echo -e "${GREEN}Protocol 2 enabled"
+			echo -e "${GREEN}Protocol 2 is enabled"
 		else
-			echo -e "${RED}Protocol 1 enabled"
+			echo -e "${RED}Protocol 1 is enabled"
 			echo -e "${BLUE}Enabling Protocol 2"
 			sed -i 's/Protocol 1/Protocol 2/g' $sshpath$sshconfig
 			echo -e "${GREEN}Protocol 2 enabled"
@@ -117,10 +115,10 @@ if [ "$EUID" -eq 0 ]; then
 		echo
 		echo -e "${BLUE}Checking if PAM is enabled"
 		if [ -n "$( grep 'UsePAM yes' $sshpath$sshconfig )" ]; then
-			echo -e "${GREEN}PAM enabled"
+			echo -e "${GREEN}PAM is enabled"
 		else
 			if [ -n "$( grep 'UsePAM no' $sshpath$sshconfig )" ]; then
-				echo -e "${RED}PAM disabled"
+				echo -e "${RED}PAM is disabled"
 				echo -e "${BLUE}Enabling PAM"
 				sed -i 's/UsePAM no/UsePAM yes/g' $sshpath$sshconfig
 				echo -e "${GREEN}PAM enabled"
@@ -152,6 +150,26 @@ if [ "$EUID" -eq 0 ]; then
 				echo "AllowUsers $users" >> $sshpath$sshconfig
 				echo -e "${GREEN}SSH users added"
 			fi
+		fi
+		echo
+		echo -e "${BLUE}Checking if X11 forwarding is disabled"
+		if [ -n "$( grep 'X11Forwarding yes' $sshpath$sshconfig)" ]; then
+			echo -e "${RED}X11 forwarding is enabled"
+			echo -e "${BLUE}Disabling X11 forwarding"
+			sed -i 's/X11Forwarding yes/X11Forwarding no/g' $sshpath$sshconfig
+			echo -e "${GREEN}X11 forwarding disabled"
+		else
+			echo -e "${GREEN}X11 forwarding is disabled"
+		fi
+		echo
+		echo -e "${BLUE}Checking if empty passwords are unallowed"
+		if [ -n "$( grep 'PermitEmptyPasswords no' $sshpath$sshconfig )" ]; then
+			echo -e "${GREEN}Empty passwords are unallowed"
+		else
+			echo -e "${RED}Empty passwords are allowed"
+			echo -e "${BLUE}Unallowing empty passwords"
+			sed -i 's/PermitEmptyPasswords yes/PermitEmptyPasswords no/g' $sshpath$sshconfig
+			echo -e "${GREEN}Empty passwords unallowed"
 		fi
 	else
 		echo -e "${RED}File $sshconfig does not exist"
