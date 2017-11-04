@@ -31,11 +31,20 @@ if [ "$EUID" -eq 0 ]; then
 	echo -e "${BLUE}Installing Synaptic${NC}"
 	apt-get install synaptic
 	echo
+
 	#Enables and configures firewall
-	echo -e "${BLUE}Enabling and configuring firewall${NC}"
-	ufw enable
-	ufw default deny incoming
-	ufw  default allow incoming
+	echo -e "${ORANGE}Would you like to automatically configure firewall now\nor configure it manually later? (Input 'now' or 'later')${NC}"
+	read when
+	echo
+	if [ $when = 'now' ]; then
+		echo -e "${BLUE}Enabling and configuring firewall${NC}"
+		ufw enable
+		ufw default deny incoming
+		ufw  default allow incoming
+		echo
+	else
+		echo -e "${BLUE}Skipping firewall configuration"
+	fi
 	echo
 
 	#Enforces password policy
@@ -55,6 +64,16 @@ if [ "$EUID" -eq 0 ]; then
 	#Disables guest account
 	guestpath="/etc/lightdm/"
 	guestfile="lightdm.conf"
+	echo -e "${BLUE}Checking if lightdm is enabled and running"
+	if [ "$( systemctl is-enabled lightdm.service )" = "enabled" ]; then
+		echo -e "${GREEN}Lightdm is enabled and running"
+	else
+		echo -e "${RED}Lightdm is not enabled and running"
+		echo -e "${BLUE}Enabling and starting lightdm"
+		systemctl enable --now lightdm.service
+		echo -e "${GREEN}Lightdm enabled and started"
+	fi
+	echo
 	echo -e "${BLUE}Checking if $guestfile exists"
 	if [ -n "$( find $guestpath -name $guestfile )" ]; then
 		echo -e "${GREEN}File $guestfile exists"
