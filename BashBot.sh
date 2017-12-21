@@ -6,6 +6,7 @@ GREEN='\033[0;32m' #Success
 ORANGE='\033[0;33m' #Input
 NC='\033[0m'
 
+echo -e "${NC}"
 echo " ____            _       ____        _"
 echo "| __ )  __ _ ___| |__   | __ )  ___ | |_"
 echo "|  _ \ / _' / __| '_ \  |  _ \ / _ \| __|"
@@ -48,32 +49,26 @@ if [ "$EUID" -eq 0 ]; then
 	echo
 
 	#Enforces password policy
-	echo -e "${BLUE}Checking if cracklib is installed"
-	if [ -n "$( apt-cache policy libpam-cracklib )" ]; then
-		echo -e "${GREEN}Cracklib installed"
-	else
-		echo -e "${RED}Cracklib is not installed"
-		echo -e "${BLUE}Installing cracklib now${NC}"
-		apt-get install libpam-cracklib
-		echo -e "${GREEN}Cracklib installed"
-		echo
-	fi
+	echo -e "${BLUE}Installing cracklib now${NC}"
+	apt-get install libpam-cracklib
+	echo -e "${GREEN}Cracklib installed"
+	echo
 	echo -e "${RED}Password policy to be implemented"
 	echo
 
 	#Disables guest account
 	guestpath="/etc/lightdm/"
 	guestfile="lightdm.conf"
-	echo -e "${BLUE}Checking if lightdm is enabled and running"
-	if [ "$( systemctl is-enabled lightdm.service )" = "enabled" ]; then
-		echo -e "${GREEN}Lightdm is enabled and running"
-	else
-		echo -e "${RED}Lightdm is not enabled and running"
-		echo -e "${BLUE}Enabling and starting lightdm"
-		systemctl enable --now lightdm.service
-		echo -e "${GREEN}Lightdm enabled and started"
-	fi
-	echo
+	#echo -e "${BLUE}Checking if lightdm is enabled and running"
+	#if [ "$( systemctl is-enabled lightdm.service )" = "enabled" ]; then
+	#	echo -e "${GREEN}Lightdm is enabled and running"
+	#else
+	#	echo -e "${RED}Lightdm is not enabled and running"
+	#	echo -e "${BLUE}Enabling and starting lightdm"
+	#	systemctl enable --now lightdm.service
+	#	echo -e "${GREEN}Lightdm enabled and started"
+	#fi
+	#echo
 	echo -e "${BLUE}Checking if $guestfile exists"
 	if [ -n "$( find $guestpath -name $guestfile )" ]; then
 		echo -e "${GREEN}File $guestfile exists"
@@ -196,17 +191,21 @@ if [ "$EUID" -eq 0 ]; then
 	fi
 
 	#Secures Cron
-	echo -e "${BLUE}Securing cron"
-	echo -e "${BLUE}Resetting crontab"
-	crontab -r
-	echo -e "${BLUE}Only allowing root access to cron"
-	cd /etc/
-	/bin/rm -f cron.deny at.deny
-	echo root >cron.allow
-	echo root >at.allow
-	/bin/chown root:root cron.allow at.allow
-	/bin/chmod 644 cron.allow at.allow
-	echo -e "${GREEN}Cron secured"
+	echo -e "${ORANGE}Would you like to secure cron(y/n)?\n${RED}WARNING: This function is stil being implemented and may not work properly${NC}"
+	read cronallow
+	if [ "$cronallow" = "y" ]; then
+		echo -e "${BLUE}Securing cron"
+		echo -e "${BLUE}Resetting crontab"
+		crontab -r
+		echo -e "${BLUE}Only allowing root access to cron"
+		cd /etc/
+		/bin/rm -f cron.deny at.deny
+		echo root >cron.allow
+		echo root >at.allow
+		/bin/chown root:root cron.allow at.allow
+		/bin/chmod 644 cron.allow at.allow
+		echo -e "${GREEN}Cron secured"
+	fi
 else
 	echo -e "${RED}Please run as root"
 	read -n 1 -s
