@@ -23,10 +23,14 @@ read -n 1 -s
 echo
 
 if [ "$EUID" -eq 0 ]; then
-	echo -e "${BLUE}Checking for and running system updates${NC}"
-	apt-get update
-	apt-get upgrade
-	echo
+	echo -e "${ORANGE}Would you like to run updates? (Y/N)"
+	read updates
+	if [ "$updates" = 'Y' || $updates = 'y' ]; then	
+		echo -e "${BLUE}Checking for and running system updates${NC}"
+		apt-get update
+		apt-get upgrade
+		echo
+	fi
 
 	#Installs Synaptic
 	echo -e "${BLUE}Installing Synaptic${NC}"
@@ -37,7 +41,7 @@ if [ "$EUID" -eq 0 ]; then
 	echo -e "${ORANGE}Would you like to automatically configure firewall now\nor configure it manually later? (Input 'now' or 'later')${NC}"
 	read when
 	echo
-	if [ $when = 'now' ]; then
+	if [ "$when" = 'now' ]; then
 		echo -e "${BLUE}Enabling and configuring firewall${NC}"
 		ufw enable
 		ufw default deny incoming
@@ -191,9 +195,9 @@ if [ "$EUID" -eq 0 ]; then
 	fi
 
 	#Secures Cron
-	echo -e "${ORANGE}Would you like to secure cron(y/n)?\n${RED}WARNING: This function is stil being implemented and may not work properly${NC}"
+	echo -e "${ORANGE}Would you like to secure cron(Y/N)?\n${RED}WARNING: This function is still being implemented and may not work properly${NC}"
 	read cronallow
-	if [ "$cronallow" = "y" ]; then
+	if [ "$cronallow" = "Y" || "$cronallow" = "y" ]; then
 		echo -e "${BLUE}Securing cron"
 		echo -e "${BLUE}Resetting crontab"
 		crontab -r
