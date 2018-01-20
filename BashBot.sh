@@ -23,9 +23,9 @@ read -n 1 -s
 echo
 
 if [ "$EUID" -eq 0 ]; then
-	echo -e "${ORANGE}Would you like to run updates? (Y/N)"
+	echo -e "${ORANGE}Would you like to run updates? (y/n)"
 	read updates
-	if [ "$updates" = "Y" || $updates = "y" ]; then	
+	if [ "$updates" = "y" ]; then
 		echo -e "${BLUE}Checking for and running system updates${NC}"
 		apt-get update
 		apt-get upgrade
@@ -195,9 +195,9 @@ if [ "$EUID" -eq 0 ]; then
 	fi
 
 	#Secures Cron
-	echo -e "${ORANGE}Would you like to secure cron(Y/N)?\n${RED}WARNING: This function is still being implemented and may not work properly${NC}"
+	echo -e "${ORANGE}Would you like to secure cron(y/n)?\n${RED}WARNING: This function is still being implemented and may not work properly${NC}"
 	read cronallow
-	if [ "$cronallow" = "Y" || "$cronallow" = "y" ]; then
+	if [ "$cronallow" = "y" ]; then
 		echo -e "${BLUE}Securing cron"
 		echo -e "${BLUE}Resetting crontab"
 		crontab -r
