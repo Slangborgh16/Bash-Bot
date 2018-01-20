@@ -25,7 +25,7 @@ echo
 if [ "$EUID" -eq 0 ]; then
 	echo -e "${ORANGE}Would you like to run updates? (Y/N)"
 	read updates
-	if [ "$updates" = 'Y' || $updates = 'y' ]; then	
+	if [ "$updates" = "Y" || $updates = "y" ]; then	
 		echo -e "${BLUE}Checking for and running system updates${NC}"
 		apt-get update
 		apt-get upgrade
