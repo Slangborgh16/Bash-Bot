@@ -45,7 +45,7 @@ if [ "$EUID" -eq 0 ]; then
 		echo -e "${BLUE}Enabling and configuring firewall${NC}"
 		ufw enable
 		ufw default deny incoming
-		ufw  default allow incoming
+		ufw  default allow outgoing
 		echo
 	else
 		echo -e "${BLUE}Skipping firewall configuration"
