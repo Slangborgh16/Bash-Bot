@@ -1,9 +1,9 @@
 #!/bin/bash
 
-RED='\033[0;31m' #Alert
-BLUE='\033[0;34m' #Status message
-GREEN='\033[0;32m' #Success
-ORANGE='\033[0;33m' #Input
+RED='\033[0;31m' # Alert
+BLUE='\033[0;34m' # Status message
+GREEN='\033[0;32m' # Success
+ORANGE='\033[0;33m' # Input
 NC='\033[0m'
 
 echo -e "${NC}"
@@ -23,21 +23,43 @@ read -n 1 -s
 echo
 
 if [ "$EUID" -eq 0 ]; then
+
 	echo -e "${ORANGE}Would you like to run updates? (y/n)"
 	read updates
 	if [ "$updates" = "y" ]; then
 		echo -e "${BLUE}Checking for and running system updates${NC}"
 		apt-get update
 		apt-get upgrade
-		echo
 	fi
+	echo
 
-	#Installs Synaptic
+	# Logs bash history
+	bashfile="$HOME/Desktop/bashlog.txt"
+
+	if [ -z "ls | grep $bashfile" ]; then
+        	touch $bashfile
+        else
+                echo "" > $bashfile
+        fi
+
+	echo -e "${BLUE}Logging bash history"
+	echo -e "Check $bashfile for log"
+	declare -a users
+	users=($(ls /home))
+	for i in ${!users[@]}; do
+		echo -e "\n" >> $bashfile
+		echo "Bash history of ${users[i]}" >> $bashfile
+		echo -e "\n" >> $bashfile
+		cat /home/${users[i]}/.bash_history >> $bashfile
+	done
+	echo
+
+	# Installs Synaptic
 	echo -e "${BLUE}Installing Synaptic${NC}"
 	apt-get install synaptic
 	echo
 
-	#Enables and configures firewall
+	# Enables and configures firewall
 	echo -e "${ORANGE}Would you like to automatically configure firewall now\nor configure it manually later? (Input 'now' or 'later')${NC}"
 	read when
 	echo
@@ -52,7 +74,7 @@ if [ "$EUID" -eq 0 ]; then
 	fi
 	echo
 
-	#Enforces password policy
+	# Enforces password policy
 	echo -e "${BLUE}Installing cracklib now${NC}"
 	apt-get install libpam-cracklib
 	echo -e "${GREEN}Cracklib installed"
@@ -60,7 +82,7 @@ if [ "$EUID" -eq 0 ]; then
 	echo -e "${RED}Password policy to be implemented"
 	echo
 
-	#Disables guest account
+	# Disables guest account
 	guestpath="/etc/lightdm/"
 	guestfile="lightdm.conf"
 	#echo -e "${BLUE}Checking if lightdm is enabled and running"
@@ -103,7 +125,7 @@ if [ "$EUID" -eq 0 ]; then
 		echo
 	fi
 
-	#Secures SSH
+	# Secures SSH
 	sshpath="/etc/ssh/"
 	sshconfig="sshd_config"
 	echo -e "${BLUE}Securing SSH"
@@ -194,22 +216,6 @@ if [ "$EUID" -eq 0 ]; then
 		echo
 	fi
 
-	#Secures Cron
-	echo -e "${ORANGE}Would you like to secure cron(y/n)?\n${RED}WARNING: This function is still being implemented and may not work properly${NC}"
-	read cronallow
-	if [ "$cronallow" = "y" ]; then
-		echo -e "${BLUE}Securing cron"
-		echo -e "${BLUE}Resetting crontab"
-		crontab -r
-		echo -e "${BLUE}Only allowing root access to cron"
-		cd /etc/
-		/bin/rm -f cron.deny at.deny
-		echo root >cron.allow
-		echo root >at.allow
-		/bin/chown root:root cron.allow at.allow
-		/bin/chmod 644 cron.allow at.allow
-		echo -e "${GREEN}Cron secured"
-	fi
 else
 	echo -e "${RED}Please run as root"
 	read -n 1 -s
